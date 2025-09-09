@@ -2,7 +2,7 @@
   "name": "crisis-assist",
   "version": "1.0.0",
   "description": "Secure Multi-Agent Emergency Response System for Global MCP Hackathon",
-  "main": "backend/dist/index.js",
+  "main": "index.js",
   "scripts": {
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "cd backend && npm run dev",
@@ -10,7 +10,7 @@
     "build": "cd backend && npm install && npm run build",
     "build:backend": "cd backend && npm run build",
     "build:frontend": "cd frontend && npm run build",
-    "start": "cd backend && npm start",
+    "start": "node index.js",
     "start:backend": "cd backend && npm start",
     "db:setup": "cd backend && npm run db:setup",
     "db:migrate": "cd backend && npm run db:migrate",
