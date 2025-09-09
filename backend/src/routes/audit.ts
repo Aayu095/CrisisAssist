@@ -1,9 +1,9 @@
  import { Router, Response } from 'express';
-import { query } from '@/database/connection';
-import { authenticate, requireScopes } from '@/middleware/auth';
-import { asyncHandler } from '@/middleware/errorHandler';
-import { AuthenticatedRequest, ValidationError } from '@/types';
-import { logger } from '@/utils/logger';
+import { query } from '../database/connection';
+import { authenticateToken, requireScopes } from '../middleware/auth';
+import { asyncHandler } from '../middleware/errorHandler';
+import { AuthenticatedRequest, AuditLog } from '../types';
+import { logger } from '../utils/logger';
 
 const router = Router();
 
@@ -11,7 +11,7 @@ const router = Router();
  * Get audit logs
  * GET /api/audit/logs
  */
-router.get('/logs', authenticate, requireScopes(['admin.audit.read']), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/logs', authenticateToken, requireScopes(['admin.audit.read']), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = Math.min(parseInt(req.query.limit as string) || 50, 1000);
   const offset = (page - 1) * limit;
@@ -118,7 +118,7 @@ router.get('/logs', authenticate, requireScopes(['admin.audit.read']), asyncHand
  * Get audit log by ID
  * GET /api/audit/logs/:id
  */
-router.get('/logs/:id', authenticate, requireScopes(['admin.audit.read']), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/logs/:id', authenticateToken, requireScopes(['admin.audit.read']), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const { id } = req.params;
 
   const result = await query(`
@@ -167,7 +167,7 @@ router.get('/logs/:id', authenticate, requireScopes(['admin.audit.read']), async
  * Get audit statistics
  * GET /api/audit/stats
  */
-router.get('/stats', authenticate, requireScopes(['admin.audit.read']), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/stats', authenticateToken, requireScopes(['admin.audit.read']), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const timeframe = req.query.timeframe as string || '24h';
   
   let timeCondition = '';
@@ -276,7 +276,7 @@ router.get('/stats', authenticate, requireScopes(['admin.audit.read']), asyncHan
  * Get security events (filtered audit logs)
  * GET /api/audit/security
  */
-router.get('/security', authenticate, requireScopes(['admin.audit.read']), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/security', authenticateToken, requireScopes(['admin.audit.read']), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = Math.min(parseInt(req.query.limit as string) || 50, 1000);
   const offset = (page - 1) * limit;
@@ -368,7 +368,7 @@ router.get('/security', authenticate, requireScopes(['admin.audit.read']), async
  * Get agent activity logs
  * GET /api/audit/agents
  */
-router.get('/agents', authenticate, requireScopes(['admin.audit.read']), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/agents', authenticateToken, requireScopes(['admin.audit.read']), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = Math.min(parseInt(req.query.limit as string) || 50, 1000);
   const offset = (page - 1) * limit;

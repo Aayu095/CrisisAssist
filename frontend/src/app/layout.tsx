@@ -4,7 +4,6 @@ import './globals.css';
 import { AuthProvider } from '@descope/nextjs-sdk';
 import { Providers } from '@/components/providers/Providers';
 import { Toaster } from 'react-hot-toast';
-import { MobileBottomNav } from '@/components/dashboard/MobileBottomNav';
 
 const inter = Inter({ subsets: ['latin'] });
 

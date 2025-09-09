@@ -17,7 +17,6 @@ import {
 import { clsx } from 'clsx';
 
 const navigation = [
-  { name: 'Home', href: '/', icon: Shield },
   { name: 'Dashboard', href: '/dashboard', icon: Activity },
   { name: 'Simulator', href: '/dashboard/simulator', icon: Zap },
   { name: 'Agents', href: '/dashboard/agents', icon: Users },
@@ -62,13 +61,15 @@ export function DashboardSidebar() {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center px-6 py-4 border-b">
-            <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
-              <Shield className="h-6 w-6 text-white" />
-            </div>
-            <div className="ml-3">
-              <h1 className="text-xl font-bold text-gray-900">CrisisAssist</h1>
-              <p className="text-xs text-gray-500">Emergency Response</p>
-            </div>
+            <a href="/" className="flex items-center">
+              <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
+                <Shield className="h-6 w-6 text-white" />
+              </div>
+              <div className="ml-3">
+                <h1 className="text-xl font-bold text-gray-900">CrisisAssist</h1>
+                <p className="text-xs text-gray-500">Emergency Response</p>
+              </div>
+            </a>
           </div>
 
           {/* Navigation */}

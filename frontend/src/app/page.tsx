@@ -10,11 +10,7 @@ export default function HomePage() {
   const { isAuthenticated, isLoading } = useDescopeSession();
   const router = useRouter();
 
-  useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      router.push('/dashboard');
-    }
-  }, [isAuthenticated, isLoading, router]);
+  // Removed automatic redirect - let user stay on home page when they click logo
 
   if (isLoading) {
     return (

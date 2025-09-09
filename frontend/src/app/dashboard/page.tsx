@@ -12,6 +12,7 @@ import {
   Users,
   Zap
 } from 'lucide-react';
+import { clsx } from 'clsx';
 import { useApi } from '@/components/providers/ApiProvider';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { StatsCard } from '@/components/dashboard/StatsCard';
@@ -151,56 +152,73 @@ export default function DashboardPage() {
 
   return (
     <AuthGuard>
-      <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">
-            Monitor your multi-agent emergency response system
-          </p>
+      <div className="space-y-6 animate-fadeIn">
+        {/* Header with distinct styling */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-100 rounded-xl p-6 border border-blue-200">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Emergency Response Dashboard</h1>
+              <p className="text-gray-600 text-lg">
+                Real-time monitoring and coordination of crisis response activities
+              </p>
+              <div className="flex items-center mt-3 space-x-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-gray-600">System Operational</span>
+                </div>
+                <div className="text-sm text-gray-500">
+                  Last updated: {new Date().toLocaleTimeString()}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={loadDashboardData}
+                disabled={isLoading}
+                className="btn-secondary flex items-center space-x-2"
+              >
+                <Activity className={clsx('h-4 w-4', isLoading && 'animate-spin')} />
+                <span>Refresh</span>
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center space-x-2 text-sm text-gray-500">
-          <Clock className="h-4 w-4" />
-          <span>Last updated: {new Date().toLocaleTimeString()}</span>
-        </div>
-      </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatsCard
-          title="Total Alerts"
-          value={stats.totalAlerts.toString()}
-          change="+12%"
-          changeType="positive"
-          icon={AlertTriangle}
-          color="red"
-        />
-        <StatsCard
-          title="Active Alerts"
-          value={stats.activeAlerts.toString()}
-          change="-8%"
-          changeType="negative"
-          icon={Activity}
-          color="orange"
-        />
-        <StatsCard
-          title="Processed Today"
-          value={stats.processedToday.toString()}
-          change="+23%"
-          changeType="positive"
-          icon={TrendingUp}
-          color="green"
-        />
-        <StatsCard
-          title="Avg Response Time"
-          value={stats.responseTime}
-          change="-15%"
-          changeType="positive"
-          icon={Zap}
-          color="blue"
-        />
-      </div>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatsCard
+            title="Total Alerts"
+            value={stats.totalAlerts.toString()}
+            change="+12%"
+            changeType="positive"
+            icon={AlertTriangle}
+            color="red"
+          />
+          <StatsCard
+            title="Active Alerts"
+            value={stats.activeAlerts.toString()}
+            change="-8%"
+            changeType="negative"
+            icon={Activity}
+            color="orange"
+          />
+          <StatsCard
+            title="Processed Today"
+            value={stats.processedToday.toString()}
+            change="+23%"
+            changeType="positive"
+            icon={TrendingUp}
+            color="green"
+          />
+          <StatsCard
+            title="Avg Response Time"
+            value={stats.responseTime}
+            change="-15%"
+            changeType="positive"
+            icon={Zap}
+            color="blue"
+          />
+        </div>
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

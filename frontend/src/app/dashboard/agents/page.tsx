@@ -252,16 +252,26 @@ export default function AgentsPage() {
 
   return (
     <AuthGuard>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Agent Management</h1>
-            <p className="text-gray-600">
-              Monitor and control your multi-agent emergency response system
-            </p>
-          </div>
-          <div className="flex items-center space-x-3">
+      <div className="space-y-6 animate-fadeIn page-transition-enter-active">
+        {/* Header with distinct purple theme */}
+        <div className="bg-gradient-to-r from-purple-50 to-pink-100 rounded-xl p-6 border border-purple-200">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Multi-Agent Control Center</h1>
+              <p className="text-gray-600 text-lg">
+                Monitor and control your AI-powered emergency response agents
+              </p>
+              <div className="flex items-center mt-3 space-x-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-gray-600">4 Agents Active</span>
+                </div>
+                <div className="text-sm text-gray-500">
+                  Agent coordination enabled
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
             <button
               onClick={refreshAgentData}
               disabled={isRefreshing}
@@ -274,6 +284,7 @@ export default function AgentsPage() {
               <Settings className="h-4 w-4" />
               <span>Configure</span>
             </button>
+            </div>
           </div>
         </div>
 

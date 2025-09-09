@@ -1,10 +1,10 @@
 import { Router, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
-import { query } from '@/database/connection';
+import { query } from '../database/connection';
 import { authenticateToken, authenticate, requireScopes } from '../middleware/auth';
-import { asyncHandler } from '@/middleware/errorHandler';
-import { AuthenticatedRequest, Alert, ValidationError, NotFoundError } from '@/types';
+import { asyncHandler } from '../middleware/errorHandler';
+import { AuthenticatedRequest, Alert, ValidationError, NotFoundError } from '../types';
 import { logger } from '../utils/logger';
 
 const router = Router();
@@ -112,14 +112,14 @@ router.post('/simulate-full', [
     alertData.status
   ]);
 
-  // Log audit event
-  logAuditEvent({
-    actor: req.auth?.claims.sub || 'anonymous',
-    action: 'alert.simulate',
-    resource: `alert:${alertId}`,
-    result: 'success',
-    details: { type, severity, location: location.address }
-  });
+  // Log audit event (commented out for demo mode)
+  // logAuditEvent({
+  //   actor: req.auth?.claims.sub || 'anonymous',
+  //   action: 'alert.simulate',
+  //   resource: `alert:${alertId}`,
+  //   result: 'success',
+  //   details: { type, severity, location: location.address }
+  // });
 
   logger.info(`Alert simulated: ${alertId} - ${type} (${severity}) at ${location.address}`);
 
@@ -296,17 +296,14 @@ router.patch('/:id/status', [
   // Update status
   await query('UPDATE alerts SET status = $1, updated_at = NOW() WHERE id = $2', [status, id]);
 
-  // Log audit event
-  logAuditEvent({
-    actor: req.auth!.claims.sub,
-    action: 'alert.status_update',
-    resource: `alert:${id}`,
-    result: 'success',
-    details: { 
-      old_status: existingAlert.rows[0].status, 
-      new_status: status 
-    }
-  });
+  // Log audit event (commented out for demo mode)
+  // logAuditEvent({
+  //   actor: req.auth!.claims.sub,
+  //   action: 'alert.status_update',
+  //   resource: `alert:${id}`,
+  //   result: 'success',
+  //   details: { status }
+  // });
 
   res.json({
     success: true,

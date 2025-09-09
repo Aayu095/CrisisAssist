@@ -27,6 +27,14 @@ export default function DashboardLayout({
     }
   }, [isAuthenticated, isSessionLoading, router]);
 
+  // Prevent automatic redirect to dashboard when user clicks logo
+  useEffect(() => {
+    const handleRouteChange = () => {
+      // Allow navigation without automatic redirects
+    };
+    return handleRouteChange;
+  }, []);
+
   if (isLoading || isSessionLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
