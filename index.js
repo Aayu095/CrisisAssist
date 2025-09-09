@@ -14,17 +14,27 @@ console.log('Current directory:', process.cwd());
 if (!fs.existsSync('./dist/index.js')) {
   console.log('Compiled files not found. Building...');
   
-  // Build with memory optimization
+  // Build with npx to use global or local TypeScript
   const { execSync } = require('child_process');
   try {
-    execSync('node --max-old-space-size=512 ./node_modules/.bin/tsc --skipLibCheck --noEmit false', { 
+    // Try npx first (uses local or global tsc)
+    execSync('npx tsc --skipLibCheck', { 
       stdio: 'inherit',
       env: { ...process.env, NODE_OPTIONS: '--max-old-space-size=512' }
     });
     console.log('Build completed successfully');
   } catch (error) {
     console.error('Build failed:', error.message);
-    process.exit(1);
+    console.log('Trying alternative build method...');
+    
+    // Fallback: try using the build script
+    try {
+      execSync('npm run build', { stdio: 'inherit' });
+      console.log('Alternative build successful');
+    } catch (fallbackError) {
+      console.error('All build methods failed:', fallbackError.message);
+      process.exit(1);
+    }
   }
 }
 
