@@ -392,4 +392,4 @@ router.get('/stats', authenticate, requireScopes(['alert.read', 'admin.read']), 
   });
 }));
 
-export default router;
+module.exports = router;

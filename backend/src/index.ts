@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -11,10 +11,10 @@ import { logger } from './utils/logger';
 import { connectDatabase } from './database/connection';
 
 // Import routes
-import alertRoutes from './routes/alerts';
-import agentRoutes from './routes/agents';
-import auditRoutes from './routes/audit';
-import healthRoutes from './routes/health';
+const alertRoutes = require('./routes/alerts');
+const agentRoutes = require('./routes/agents');
+const auditRoutes = require('./routes/audit');
+const healthRoutes = require('./routes/health');
 
 // Load environment variables
 dotenv.config();
@@ -59,7 +59,7 @@ app.use('/api/agents', authenticateToken, agentRoutes);
 app.use('/api/audit', authenticateToken, auditRoutes);
 
 // Root endpoint
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
   res.json({
     message: 'CrisisAssist API - Secure Multi-Agent Emergency Response System',
     version: '1.0.0',
@@ -75,7 +75,7 @@ app.get('/', (req, res) => {
 });
 
 // 404 handler
-app.use('*', (req, res) => {
+app.use('*', (req: Request, res: Response) => {
   res.status(404).json({
     error: 'Endpoint not found',
     message: `The requested endpoint ${req.originalUrl} does not exist`,
@@ -94,7 +94,7 @@ async function startServer() {
     logger.info('Database connected successfully');
 
     // Start HTTP server
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       logger.info(`🚀 CrisisAssist API server running on port ${PORT}`);
       logger.info(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
       logger.info(`🔗 API Base URL: ${process.env.API_BASE_URL || `http://localhost:${PORT}`}`);

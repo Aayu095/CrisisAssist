@@ -447,4 +447,4 @@ function determineSeverity(action: string): 'low' | 'medium' | 'high' | 'critica
   return severityMap[action] || 'medium';
 }
 
-export default router;
+module.exports = router;

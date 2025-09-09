@@ -613,4 +613,4 @@ router.post('/verifier/simple', authenticate, asyncHandler(async (req: Authentic
   }
 }));
 
-export default router;
+module.exports = router;

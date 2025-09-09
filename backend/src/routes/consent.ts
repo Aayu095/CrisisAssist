@@ -236,4 +236,4 @@ router.get('/active', authenticateToken, async (req: AuthenticatedRequest, res) 
   }
 });
 
-export default router;
+module.exports = router;

@@ -178,4 +178,4 @@ router.get('/live', (req: Request, res: Response) => {
   });
 });
 
-export default router;
+module.exports = router;
