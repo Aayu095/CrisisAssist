@@ -12,7 +12,7 @@
   <img src="https://img.shields.io/badge/MCP%20Hackathon-2025-orange?style=for-the-badge" alt="MCP Hackathon 2025"/>
 </p>
 
-> **🏆 MCP Hackathon 2025 Theme 3 Submission: Secure Agent-to-Agent Communication**
+> **🏆 MCP Hackathon 2025 Theme 3 Submission: CrisisAssist - Secure Agent-to-Agent Communication**
 
 A revolutionary multi-agent emergency response system that coordinates disaster relief through secure AI agents, saving lives through intelligent automation and real-time collaboration.
 
