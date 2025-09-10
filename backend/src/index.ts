@@ -15,12 +15,14 @@ const alertRoutes = require('./routes/alerts');
 const agentRoutes = require('./routes/agents');
 const auditRoutes = require('./routes/audit');
 const healthRoutes = require('./routes/health');
+const workflowRoutes = require('./routes/workflow');
+import realWorkflowRoutes from './routes/realWorkflowRoutes';
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = parseInt(process.env.PORT || '3001', 10);
 
 // Security middleware
 app.use(helmet());
@@ -57,6 +59,8 @@ app.use('/api/health', healthRoutes);
 app.use('/api/alerts', authenticateToken, alertRoutes);
 app.use('/api/agents', authenticateToken, agentRoutes);
 app.use('/api/audit', authenticateToken, auditRoutes);
+app.use('/api/workflow', authenticateToken, workflowRoutes);
+app.use('/api/real-workflow', realWorkflowRoutes);
 
 // Root endpoint
 app.get('/', (req: Request, res: Response) => {
@@ -69,7 +73,8 @@ app.get('/', (req: Request, res: Response) => {
       health: '/api/health',
       alerts: '/api/alerts',
       agents: '/api/agents',
-      audit: '/api/audit'
+      audit: '/api/audit',
+      workflow: '/api/workflow'
     }
   });
 });

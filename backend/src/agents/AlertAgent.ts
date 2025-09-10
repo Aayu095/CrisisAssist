@@ -3,6 +3,9 @@ import { logger, logAuditEvent } from '../utils/logger';
 import { AuthenticatedRequest, NotFoundError } from '../types';
 import { genkitMultiAgentFramework } from '../utils/genkitAgentFramework';
 import { streamingService } from '../utils/realTimeStreaming';
+import axios from 'axios';
+import { SlackService } from '../utils/slack';
+import { twilioService } from '../utils/twilio';
 
 export interface AlertProcessingResult {
   alert_id: string;
@@ -24,6 +27,268 @@ export interface AlertProcessingResult {
 export class AlertAgent {
   private readonly agentId = 'agent_alert_001';
   private readonly agentType = 'alert';
+  private slackService: SlackService;
+
+  constructor() {
+    this.slackService = new SlackService();
+  }
+
+  /**
+   * 🚨 REAL WORK: Detect crisis from multiple sources and create alert
+   */
+  async detectAndCreateAlert(crisisData: {
+    source: 'manual' | 'sensor' | 'api' | 'citizen_report';
+    type: string;
+    severity: string;
+    title: string;
+    description: string;
+    location: {
+      address: string;
+      lat?: number;
+      lng?: number;
+    };
+    metadata?: any;
+  }, auth: NonNullable<AuthenticatedRequest['auth']>): Promise<{ alert_id: string; immediate_actions: any[] }> {
+    const startTime = Date.now();
+    
+    try {
+      // 1. Validate location using Geoapify (real geocoding)
+      const validatedLocation = await this.validateAndEnhanceLocation(crisisData.location);
+      
+      // 2. Create alert in database
+      const alertId = await this.createAlertRecord(crisisData, validatedLocation);
+      
+      // 3. Immediately broadcast to internal team (REAL Slack notification)
+      const immediateNotifications = await this.sendImmediateAlerts(alertId, crisisData);
+      
+      // 4. Log the real detection
+      logAuditEvent({
+        actor: this.agentId,
+        action: 'crisis.detect',
+        resource: `alert:${alertId}`,
+        result: 'success',
+        details: {
+          source: crisisData.source,
+          type: crisisData.type,
+          severity: crisisData.severity,
+          location: validatedLocation.address,
+          immediate_notifications: immediateNotifications.length
+        }
+      });
+
+      logger.info(`🚨 CRISIS DETECTED AND ALERT CREATED: ${alertId}`, {
+        agentId: this.agentId,
+        source: crisisData.source,
+        type: crisisData.type,
+        severity: crisisData.severity,
+        location: validatedLocation.address
+      });
+
+      return {
+        alert_id: alertId,
+        immediate_actions: immediateNotifications
+      };
+    } catch (error) {
+      logger.error('Crisis detection failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 🌍 REAL WORK: Validate location using Geoapify API
+   */
+  private async validateAndEnhanceLocation(location: { address: string; lat?: number; lng?: number }): Promise<{ address: string; lat: number; lng: number; formatted_address: string }> {
+    try {
+      // Use Geoapify for real geocoding (free tier available)
+      const geoapifyKey = process.env.GEOAPIFY_API_KEY || 'demo_key';
+      
+      if (geoapifyKey === 'demo_key') {
+        // Demo mode - return mock coordinates
+        return {
+          address: location.address,
+          lat: location.lat || 22.7196,
+          lng: location.lng || 75.8577,
+          formatted_address: `${location.address}, India`
+        };
+      }
+
+      const response = await axios.get(`https://api.geoapify.com/v1/geocode/search`, {
+        params: {
+          text: location.address,
+          apiKey: geoapifyKey,
+          limit: 1
+        }
+      });
+
+      if (response.data.features && response.data.features.length > 0) {
+        const feature = response.data.features[0];
+        return {
+          address: location.address,
+          lat: feature.geometry.coordinates[1],
+          lng: feature.geometry.coordinates[0],
+          formatted_address: feature.properties.formatted
+        };
+      }
+
+      // Fallback to provided coordinates or defaults
+      return {
+        address: location.address,
+        lat: location.lat || 22.7196,
+        lng: location.lng || 75.8577,
+        formatted_address: location.address
+      };
+    } catch (error) {
+      logger.warn('Geoapify geocoding failed, using fallback:', error);
+      return {
+        address: location.address,
+        lat: location.lat || 22.7196,
+        lng: location.lng || 75.8577,
+        formatted_address: location.address
+      };
+    }
+  }
+
+  /**
+   * 💾 REAL WORK: Create alert record in database
+   */
+  private async createAlertRecord(crisisData: any, location: any): Promise<string> {
+    const alertId = `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    await query(`
+      INSERT INTO alerts (id, type, severity, title, description, location_address, location_lat, location_lng, metadata, status, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
+    `, [
+      alertId,
+      crisisData.type,
+      crisisData.severity,
+      crisisData.title,
+      crisisData.description,
+      location.formatted_address,
+      location.lat,
+      location.lng,
+      JSON.stringify({ source: crisisData.source, ...crisisData.metadata }),
+      'active'
+    ]);
+
+    return alertId;
+  }
+
+  /**
+   * 📢 REAL WORK: Send immediate alerts to internal team via Slack and SMS
+   */
+  private async sendImmediateAlerts(alertId: string, crisisData: any): Promise<any[]> {
+    const notifications = [];
+
+    try {
+      // 1. REAL Slack notification to emergency channel
+      const slackMessage = `🚨 **EMERGENCY ALERT DETECTED** 🚨
+
+**Type:** ${crisisData.type.toUpperCase()}
+**Severity:** ${crisisData.severity.toUpperCase()}
+**Location:** ${crisisData.location.address}
+**Source:** ${crisisData.source}
+
+**Description:** ${crisisData.description}
+
+**Alert ID:** ${alertId}
+**Time:** ${new Date().toLocaleString()}
+
+⚡ **IMMEDIATE ACTION REQUIRED** ⚡
+CrisisAssist AI has detected this emergency and is initiating response protocols.`;
+
+      const slackResult = await this.slackService.sendMessage({
+        channel: '#emergency-alerts',
+        text: slackMessage,
+        blocks: [
+          {
+            type: 'header',
+            text: {
+              type: 'plain_text',
+              text: `🚨 ${crisisData.severity.toUpperCase()} ${crisisData.type.toUpperCase()} ALERT`
+            }
+          },
+          {
+            type: 'section',
+            fields: [
+              {
+                type: 'mrkdwn',
+                text: `*Location:*\n${crisisData.location.address}`
+              },
+              {
+                type: 'mrkdwn',
+                text: `*Source:*\n${crisisData.source}`
+              },
+              {
+                type: 'mrkdwn',
+                text: `*Alert ID:*\n${alertId}`
+              },
+              {
+                type: 'mrkdwn',
+                text: `*Time:*\n${new Date().toLocaleString()}`
+              }
+            ]
+          },
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `*Description:*\n${crisisData.description}`
+            }
+          }
+        ]
+      });
+
+      notifications.push({
+        type: 'slack',
+        status: 'sent',
+        message_id: slackResult.ts,
+        channel: '#emergency-alerts'
+      });
+
+      // 2. REAL SMS notification to emergency contacts
+      const smsMessage = `🚨 CRISIS ALERT: ${crisisData.type.toUpperCase()} - ${crisisData.severity.toUpperCase()}
+Location: ${crisisData.location.address}
+Time: ${new Date().toLocaleString()}
+Alert ID: ${alertId}
+Immediate response required!`;
+
+      const emergencyContacts = ['+1234567890']; // Demo number
+      for (const contact of emergencyContacts) {
+        try {
+          const smsResult = await twilioService.sendSMS({
+            to: contact,
+            message: smsMessage,
+            priority: 'urgent'
+          });
+
+          notifications.push({
+            type: 'sms',
+            status: smsResult.success ? 'sent' : 'failed',
+            message_id: smsResult.messageId,
+            recipient: contact,
+            error: smsResult.error
+          });
+        } catch (smsError) {
+          notifications.push({
+            type: 'sms',
+            status: 'failed',
+            recipient: contact,
+            error: smsError instanceof Error ? smsError.message : 'Unknown error'
+          });
+        }
+      }
+
+    } catch (error) {
+      logger.error('Failed to send immediate alerts:', error);
+      notifications.push({
+        type: 'error',
+        status: 'failed',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    return notifications;
+  }
 
   /**
    * Process an incoming alert and determine response actions

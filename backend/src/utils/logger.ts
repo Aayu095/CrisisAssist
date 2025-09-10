@@ -31,34 +31,50 @@ const format = winston.format.combine(
 );
 
 // Define which transports the logger must use
-const transports = [
+const transports: winston.transport[] = [
   // Console transport
   new winston.transports.Console({
     format: winston.format.combine(
       winston.format.colorize(),
       winston.format.simple()
     )
-  }),
-  
-  // File transport for errors
-  new winston.transports.File({
-    filename: 'logs/error.log',
-    level: 'error',
-    format: winston.format.combine(
-      winston.format.timestamp(),
-      winston.format.json()
-    )
-  }),
-  
-  // File transport for all logs
-  new winston.transports.File({
-    filename: 'logs/combined.log',
-    format: winston.format.combine(
-      winston.format.timestamp(),
-      winston.format.json()
-    )
-  }),
+  })
 ];
+
+// Only add file transports in development or when LOG_TO_FILE is explicitly enabled
+if (process.env.NODE_ENV === 'development' || process.env.LOG_TO_FILE === 'true') {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const logsDir = path.join(process.cwd(), 'logs');
+    
+    // Create logs directory if it doesn't exist
+    if (!fs.existsSync(logsDir)) {
+      fs.mkdirSync(logsDir, { recursive: true });
+    }
+    
+    // File transport for errors
+    transports.push(new winston.transports.File({
+      filename: path.join(logsDir, 'error.log'),
+      level: 'error',
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json()
+      )
+    }));
+    
+    // File transport for all logs
+    transports.push(new winston.transports.File({
+      filename: path.join(logsDir, 'combined.log'),
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json()
+      )
+    }));
+  } catch (error) {
+    console.warn('Could not create file transports for logging:', error.message);
+  }
+}
 
 // Create the logger
 export const logger = winston.createLogger({

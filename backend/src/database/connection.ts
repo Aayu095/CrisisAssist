@@ -9,12 +9,23 @@ export const connectDatabase = async (): Promise<Pool> => {
   }
 
   try {
+    // Check if DATABASE_URL is provided
+    if (!process.env.DATABASE_URL) {
+      if (process.env.DEMO_MODE === 'true') {
+        logger.warn('DATABASE_URL not provided, running in demo mode without database');
+        // Create a mock pool for demo mode
+        return {} as Pool;
+      } else {
+        throw new Error('DATABASE_URL environment variable is required');
+      }
+    }
+
     pool = new Pool({
       connectionString: process.env.DATABASE_URL,
       ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
       max: 20, // Maximum number of clients in the pool
       idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-      connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
+      connectionTimeoutMillis: 10000, // Return an error after 10 seconds if connection could not be established
     });
 
     // Test the connection
@@ -32,6 +43,10 @@ export const connectDatabase = async (): Promise<Pool> => {
     return pool;
   } catch (error) {
     logger.error('Failed to connect to database:', error);
+    if (process.env.DEMO_MODE === 'true') {
+      logger.warn('Database connection failed, continuing in demo mode');
+      return {} as Pool;
+    }
     throw error;
   }
 };
@@ -44,6 +59,11 @@ export const getPool = (): Pool => {
 };
 
 export const query = async (text: string, params?: any[]): Promise<any> => {
+  if (process.env.DEMO_MODE === 'true' && (!pool || Object.keys(pool).length === 0)) {
+    logger.debug('Demo mode: Skipping database query', { query: text });
+    return { rows: [], rowCount: 0 };
+  }
+  
   const client = await pool.connect();
   try {
     const start = Date.now();

@@ -36,6 +36,13 @@ const nextConfig = {
     unoptimized: true,
   },
   
+  // Enable static export
+  output: 'export',
+  trailingSlash: true,
+  
+  // Disable server-side features for static export
+  distDir: 'out',
+  
   // Disable source maps for faster builds
   productionBrowserSourceMaps: false,
 }

@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "Frontend dashboard for CrisisAssist multi-agent emergency response system",
   "private": true,
-  "workspaces": false,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "export": "next export",
     "lint": "next lint",
     "type-check": "tsc --noEmit"
   },

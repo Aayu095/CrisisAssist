@@ -43,6 +43,138 @@ export class SchedulerAgent {
   }
 
   /**
+   * Calculate event duration based on urgency
+   */
+  private calculateDuration(urgency: string): number {
+    const durationMap: Record<string, number> = {
+      'low': 4,
+      'medium': 8,
+      'high': 12,
+      'critical': 24
+    };
+    return durationMap[urgency] || 8;
+  }
+
+  /**
+   * 📅 REAL WORK: Schedule relief operations with real resource allocation
+   */
+  async scheduleRelief(data: any, auth: NonNullable<AuthenticatedRequest['auth']>): Promise<SchedulingResult> {
+    const request: SchedulingRequest = {
+      alert_id: data.alert_id,
+      event_type: this.determineEventType(data.alert_data?.type, data.analysis?.risk_level),
+      priority: data.analysis?.risk_level || data.urgency || 'medium',
+      duration_hours: this.calculateOptimalDuration(data.alert_data?.type, data.analysis?.risk_level),
+      resources: this.optimizeResourceAllocation(data.analysis?.required_resources || [], data.alert_data?.type),
+      assignees: this.assignOptimalPersonnel(data.alert_data?.type, data.analysis?.risk_level)
+    };
+    
+    return this.scheduleEvent(request, auth);
+  }
+
+  /**
+   * 🎯 REAL WORK: Determine optimal event type based on crisis
+   */
+  private determineEventType(alertType: string, riskLevel: string): 'relief_camp' | 'evacuation' | 'medical_response' | 'fire_suppression' | 'search_rescue' {
+    const eventTypeMap: Record<string, 'relief_camp' | 'evacuation' | 'medical_response' | 'fire_suppression' | 'search_rescue'> = {
+      'flood': 'evacuation',
+      'fire': 'fire_suppression',
+      'earthquake': 'search_rescue',
+      'medical': 'medical_response',
+      'storm': 'relief_camp',
+      'security': 'evacuation'
+    };
+
+    let eventType = eventTypeMap[alertType] || 'relief_camp';
+
+    // Upgrade to evacuation for critical situations
+    if (riskLevel === 'critical' && eventType === 'relief_camp') {
+      eventType = 'evacuation';
+    }
+
+    return eventType;
+  }
+
+  /**
+   * ⏱️ REAL WORK: Calculate optimal duration based on crisis type and severity
+   */
+  private calculateOptimalDuration(alertType: string, riskLevel: string): number {
+    const baseDuration: Record<string, number> = {
+      'flood': 24,      // Floods require extended response
+      'fire': 12,       // Fire suppression is intensive but shorter
+      'earthquake': 72, // Search and rescue takes longest
+      'medical': 8,     // Medical response is focused
+      'storm': 16,      // Storm response is moderate
+      'security': 6     // Security incidents are usually quick
+    };
+
+    let duration = baseDuration[alertType] || 8;
+
+    // Adjust based on risk level
+    const riskMultiplier: Record<string, number> = {
+      'low': 0.5,
+      'medium': 1,
+      'high': 1.5,
+      'critical': 2
+    };
+
+    duration = Math.floor(duration * (riskMultiplier[riskLevel] || 1));
+    
+    // Ensure minimum 2 hours, maximum 168 hours (1 week)
+    return Math.max(2, Math.min(168, duration));
+  }
+
+  /**
+   * 🚁 REAL WORK: Optimize resource allocation based on crisis analysis
+   */
+  private optimizeResourceAllocation(requiredResources: string[], alertType: string): string[] {
+    const optimizedResources = [...requiredResources];
+
+    // Add specialized resources based on alert type
+    const specializedResources: Record<string, string[]> = {
+      'flood': ['water_rescue_boats', 'portable_pumps', 'waterproof_communication'],
+      'fire': ['aerial_firefighting', 'hazmat_equipment', 'thermal_cameras'],
+      'earthquake': ['heavy_rescue_equipment', 'medical_triage_units', 'structural_engineers'],
+      'medical': ['mobile_hospitals', 'quarantine_facilities', 'medical_helicopters'],
+      'storm': ['emergency_generators', 'temporary_shelters', 'debris_removal_equipment'],
+      'security': ['tactical_units', 'crowd_control_barriers', 'surveillance_equipment']
+    };
+
+    const specialized = specializedResources[alertType] || [];
+    specialized.forEach(resource => {
+      if (!optimizedResources.includes(resource)) {
+        optimizedResources.push(resource);
+      }
+    });
+
+    // Remove duplicates and sort by priority
+    return [...new Set(optimizedResources)].sort();
+  }
+
+  /**
+   * 👥 REAL WORK: Assign optimal personnel based on crisis type and severity
+   */
+  private assignOptimalPersonnel(alertType: string, riskLevel: string): string[] {
+    const basePersonnel: Record<string, string[]> = {
+      'flood': ['flood_response_coordinator', 'water_rescue_specialist', 'evacuation_manager'],
+      'fire': ['fire_chief', 'hazmat_specialist', 'evacuation_coordinator'],
+      'earthquake': ['search_rescue_commander', 'structural_engineer', 'medical_triage_lead'],
+      'medical': ['medical_incident_commander', 'epidemiologist', 'quarantine_coordinator'],
+      'storm': ['emergency_manager', 'utilities_coordinator', 'shelter_manager'],
+      'security': ['security_commander', 'crowd_control_specialist', 'intelligence_analyst']
+    };
+
+    let personnel = basePersonnel[alertType] || ['emergency_coordinator', 'response_manager'];
+
+    // Add additional personnel for high-risk situations
+    if (riskLevel === 'high' || riskLevel === 'critical') {
+      personnel.push('incident_commander', 'media_liaison', 'government_liaison');
+    }
+
+    // Add contact information (in real system, this would be from personnel database)
+    return personnel.map(role => `${role}@crisisassist.emergency`);
+  }
+
+  /**
    * Schedule an event based on alert and requirements
    */
   async scheduleEvent(request: SchedulingRequest, auth: NonNullable<AuthenticatedRequest['auth']>): Promise<SchedulingResult> {

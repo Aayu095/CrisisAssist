@@ -170,3 +170,20 @@ CREATE TRIGGER update_events_updated_at BEFORE UPDATE ON events
 
 CREATE TRIGGER update_agent_tokens_updated_at BEFORE UPDATE ON agent_tokens
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Workflow executions table (for multi-agent workflows)
+CREATE TABLE IF NOT EXISTS workflow_executions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id),
+    workflow_type VARCHAR(100) NOT NULL,
+    alert_id UUID REFERENCES alerts(id),
+    request_data JSONB NOT NULL,
+    result_data JSONB NOT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'pending',
+    execution_time INTEGER,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_workflow_executions_user_id ON workflow_executions(user_id);
+CREATE INDEX IF NOT EXISTS idx_workflow_executions_status ON workflow_executions(status);
+CREATE INDEX IF NOT EXISTS idx_workflow_executions_created_at ON workflow_executions(created_at);

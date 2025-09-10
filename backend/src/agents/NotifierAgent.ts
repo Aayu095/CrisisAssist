@@ -55,6 +55,72 @@ export class NotifierAgent {
   }
 
   /**
+   * Send emergency notifications across multiple channels
+   */
+  async sendEmergencyNotifications(data: any, auth: NonNullable<AuthenticatedRequest['auth']>): Promise<any> {
+    const notifications = [];
+    
+    for (const channel of data.channels || ['slack']) {
+      const request: NotificationRequest = {
+        alert_id: data.alert_data?.id,
+        channel_type: channel as any,
+        recipients: this.getDefaultRecipients(channel),
+        message: {
+          subject: `Emergency Alert: ${data.alert_data?.title || 'Crisis Response'}`,
+          content: this.formatEmergencyMessage(data)
+        },
+        priority: 'urgent'
+      };
+      
+      const result = await this.sendNotification(request, auth);
+      notifications.push(result);
+    }
+    
+    return {
+      notifications,
+      total_channels: data.channels?.length || 1,
+      status: notifications.every(n => n.status === 'sent') ? 'sent' : 'partial'
+    };
+  }
+
+  /**
+   * Get default recipients for a channel
+   */
+  private getDefaultRecipients(channel: string): string[] {
+    const recipients: Record<string, string[]> = {
+      slack: ['#emergency-alerts', '#crisis-response'],
+      sms: ['+1234567890'], // Demo numbers
+      email: ['emergency@crisisassist.ai']
+    };
+    return recipients[channel] || [];
+  }
+
+  /**
+   * Format emergency message content
+   */
+  private formatEmergencyMessage(data: any): string {
+    const alert = data.alert_data;
+    const analysis = data.analysis;
+    const verification = data.verification;
+    
+    return `🚨 EMERGENCY ALERT 🚨
+
+Type: ${alert?.type || 'Unknown'}
+Severity: ${alert?.severity || 'Unknown'}
+Location: ${alert?.location_address || 'Unknown'}
+
+Risk Level: ${analysis?.risk_level || 'Unknown'}
+Affected Population: ${analysis?.affected_population || 'Unknown'}
+
+Verification Status: ${verification?.verified ? '✅ Verified' : '⚠️ Unverified'}
+
+Recommended Actions:
+${analysis?.recommended_actions?.map((action: string) => `• ${action}`).join('\n') || 'None specified'}
+
+This is an automated alert from CrisisAssist AI Emergency Response System.`;
+  }
+
+  /**
    * Send notification to specified recipients
    */
   async sendNotification(request: NotificationRequest, _auth: NonNullable<AuthenticatedRequest['auth']>): Promise<NotificationResult> {

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nodemon src/index.ts",
     "build": "node --max-old-space-size=1024 ./node_modules/.bin/tsc",
+    "postbuild": "node database-init.js",
     "start": "node dist/index.js",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -43,7 +44,10 @@
     "uuid": "^9.0.1",
     "winston": "^3.11.0",
     "ws": "^8.18.0",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "@geoapify/geocoding-api": "^1.0.0",
+    "nodemailer": "^6.9.7",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
