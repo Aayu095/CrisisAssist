@@ -8,6 +8,8 @@
     "build": "node --max-old-space-size=1024 ./node_modules/.bin/tsc",
     "postbuild": "node database-init.js",
     "start": "node dist/index.js",
+    "railway:build": "npm run build",
+    "railway:start": "npm start",
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint src/**/*.ts",

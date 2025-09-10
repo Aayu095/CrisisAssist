@@ -9,7 +9,9 @@
     "start": "next start",
     "export": "next export",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "railway:build": "npm run build",
+    "railway:start": "npm start"
   },
   "dependencies": {
     "next": "14.0.4",

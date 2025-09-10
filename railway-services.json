@@ -1,0 +1,43 @@
+{
+  "services": {
+    "backend": {
+      "source": {
+        "repo": "your-github-username/CrisisAssist",
+        "rootDirectory": "/backend"
+      },
+      "build": {
+        "builder": "NIXPACKS",
+        "buildCommand": "npm run railway:build"
+      },
+      "deploy": {
+        "startCommand": "npm run railway:start",
+        "healthcheckPath": "/health",
+        "healthcheckTimeout": 300
+      },
+      "variables": {
+        "NODE_ENV": "production",
+        "PORT": "${{RAILWAY_PORT}}"
+      }
+    },
+    "frontend": {
+      "source": {
+        "repo": "your-github-username/CrisisAssist",
+        "rootDirectory": "/frontend"
+      },
+      "build": {
+        "builder": "NIXPACKS",
+        "buildCommand": "npm run railway:build"
+      },
+      "deploy": {
+        "startCommand": "npm run railway:start"
+      },
+      "variables": {
+        "NODE_ENV": "production",
+        "PORT": "${{RAILWAY_PORT}}"
+      }
+    },
+    "database": {
+      "plugin": "postgresql"
+    }
+  }
+}

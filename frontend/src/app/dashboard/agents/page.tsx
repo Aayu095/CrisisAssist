@@ -19,9 +19,9 @@ import {
   Users,
   Globe
 } from 'lucide-react';
-import { AuthGuard } from '@/components/auth/AuthGuard';
 import { useApi } from '@/components/providers/ApiProvider';
 import { AgentChat } from '@/components/agents/AgentChat';
+import { WorkflowStatus } from '@/components/agents/WorkflowStatus';
 import toast from 'react-hot-toast';
 import { clsx } from 'clsx';
 
@@ -51,6 +51,8 @@ export default function AgentsPage() {
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [activeWorkflow, setActiveWorkflow] = useState<string | null>(null);
+  const [workflowActive, setWorkflowActive] = useState(false);
 
   const agentConfigs: Agent[] = [
     {
@@ -251,8 +253,7 @@ export default function AgentsPage() {
   const selectedAgentData = selectedAgent ? agents.find(a => a.id === selectedAgent) : null;
 
   return (
-    <AuthGuard>
-      <div className="space-y-6 animate-fadeIn page-transition-enter-active">
+    <div className="space-y-6 animate-fadeIn page-transition-enter-active">
         {/* Header with distinct purple theme */}
         <div className="bg-gradient-to-r from-purple-50 to-pink-100 rounded-xl p-6 border border-purple-200">
           <div className="flex justify-between items-center">
@@ -537,10 +538,47 @@ export default function AgentsPage() {
           </div>
         )}
 
-        {/* Agent Chat Interface */}
+        {/* Agent Chat Interface & Workflow Status */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-6">
             <AgentChat className="h-[500px]" />
+            
+            {/* Real-time Workflow Visualization */}
+            <div className="bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200 rounded-xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Live Agent Coordination</h3>
+                  <p className="text-sm text-gray-600">Watch agents collaborate in real-time during emergency response</p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => {
+                      setActiveWorkflow(`workflow_${Date.now()}`);
+                      setWorkflowActive(!workflowActive);
+                      if (!workflowActive) {
+                        toast.success('🚨 Emergency workflow simulation started!');
+                      } else {
+                        toast.success('Workflow simulation stopped');
+                      }
+                    }}
+                    className={clsx(
+                      'px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200',
+                      workflowActive 
+                        ? 'bg-red-500 hover:bg-red-600 text-white' 
+                        : 'bg-blue-500 hover:bg-blue-600 text-white'
+                    )}
+                  >
+                    {workflowActive ? '⏹️ Stop Demo' : '▶️ Start Demo Workflow'}
+                  </button>
+                </div>
+              </div>
+              
+              <WorkflowStatus 
+                workflowId={activeWorkflow || undefined}
+                isActive={workflowActive}
+                className="border-0 shadow-none bg-transparent"
+              />
+            </div>
           </div>
           
           {/* System Overview */}
@@ -569,18 +607,29 @@ export default function AgentsPage() {
               </div>
             </div>
 
-            <div className="mt-6 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <div className="flex items-center space-x-2 mb-1">
-                <CheckCircle className="h-4 w-4 text-green-600" />
-                <span className="text-sm font-medium text-green-800">System Ready</span>
+            <div className="mt-6 space-y-3">
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex items-center space-x-2 mb-1">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span className="text-sm font-medium text-green-800">System Ready</span>
+                </div>
+                <p className="text-xs text-green-700">
+                  Chat interface active. Send instructions to coordinate emergency response.
+                </p>
               </div>
-              <p className="text-xs text-green-700">
-                Chat interface active. Send instructions to coordinate emergency response.
-              </p>
+              
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center space-x-2 mb-1">
+                  <Zap className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm font-medium text-blue-800">Real-time Demo</span>
+                </div>
+                <p className="text-xs text-blue-700">
+                  Click "Start Demo Workflow" to see agents coordinate a simulated emergency response.
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </AuthGuard>
+    </div>
   );
 }

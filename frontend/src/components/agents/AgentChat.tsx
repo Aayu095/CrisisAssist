@@ -38,7 +38,7 @@ export function AgentChat({ className }: AgentChatProps) {
     {
       id: '1',
       type: 'system',
-      content: 'Welcome to the CrisisAssist Multi-Agent Chat Interface. You can send instructions to our AI agents for emergency response coordination. Try commands like "Process flood alert in Mumbai" or "Schedule emergency meeting for tomorrow".',
+      content: '🚨 **CrisisAssist Multi-Agent System Online** 🚨\n\n✅ 4 AI agents ready for emergency coordination\n🔐 Secure Descope authentication active\n🌐 Real-time communication enabled\n\n**Quick Commands:**\n• "Process [disaster type] alert in [location]"\n• "Schedule emergency meeting for [time]"\n• "Send notification via [channel]"\n• "Verify emergency report from [source]"\n\n**Example:** "Process critical flood alert in Mumbai - evacuate riverside areas"',
       timestamp: new Date(),
     }
   ]);
@@ -468,7 +468,7 @@ export function AgentChat({ className }: AgentChatProps) {
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               disabled={isProcessing}
-              placeholder="Type your instruction to the agents..."
+              placeholder="🚨 Type emergency instruction for AI agents... (e.g., 'Process fire alert in downtown area')"
               className="w-full p-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
             />
             {isProcessing && (
@@ -486,8 +486,26 @@ export function AgentChat({ className }: AgentChatProps) {
           </button>
         </form>
         
-        <div className="mt-2 text-xs text-gray-500">
-          Try: "Process flood alert in Mumbai", "Schedule emergency meeting tomorrow", "Send notification via Slack"
+        <div className="mt-3 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+          <div className="text-xs font-medium text-gray-700 mb-2">💡 Smart Commands Available:</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-gray-600">
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 bg-red-400 rounded-full"></span>
+              <span>"Critical earthquake alert in Tokyo"</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
+              <span>"Schedule relief coordination meeting"</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+              <span>"Broadcast evacuation notice via SMS"</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 bg-purple-400 rounded-full"></span>
+              <span>"Verify news report authenticity"</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
