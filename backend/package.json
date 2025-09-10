@@ -45,7 +45,6 @@
     "winston": "^3.11.0",
     "ws": "^8.18.0",
     "zod": "^3.22.4",
-    "@geoapify/geocoding-api": "^1.0.0",
     "nodemailer": "^6.9.7",
     "node-fetch": "^3.3.2"
   },
